@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/accountable"
+}
+
+datasource accountable {
+  provider = "mysql"
+  url      = env("ACCOUNTABLE_DATABASE_URL")
+}
+
+model Client {
+  id         Int      @id @default(autoincrement())
+  updateTime DateTime @default(now())
+  createTime DateTime @default(now())
+
+  users User[]
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  updateTime DateTime @default(now())
+  createTime DateTime @default(now())
+
+  email        String @unique
+  username     String @unique
+  displayeName String
+  password     String
+
+  client   Client    @relation(fields: [clientId], references: [id])
+  clientId Int
+  accounts Account[]
+}
+
+model Account {
+  id         Int      @id @default(autoincrement())
+  updateTime DateTime @default(now())
+  createTime DateTime @default(now())
+
+  displayName String
+
+  user         User          @relation(fields: [userId], references: [id])
+  userId       Int
+  transactions Transaction[]
+}
+
+model Transaction {
+  id         Int      @id @default(autoincrement())
+  updateTime DateTime @default(now())
+  createTime DateTime @default(now())
+
+  note          String?
+  amount        Decimal
+  executionTime DateTime @default(now())
+  interval      Float    @default(0)
+
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId Int
+}
