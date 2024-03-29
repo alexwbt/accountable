@@ -3,52 +3,55 @@ generator client {
   output   = "./generated/accountable"
 }
 
-datasource accountable {
+datasource db {
   provider = "mysql"
   url      = env("ACCOUNTABLE_DATABASE_URL")
 }
 
-model Client {
-  id         Int      @id @default(autoincrement())
-  updateTime DateTime @default(now())
-  createTime DateTime @default(now())
+// model Client {
+//   id         Int      @id @default(autoincrement())
+//   updateTime DateTime @default(now())
+//   createTime DateTime @default(now())
 
-  users User[]
-}
+//   name        String  @unique
+//   displayName String?
 
-model User {
-  id         Int      @id @default(autoincrement())
-  updateTime DateTime @default(now())
-  createTime DateTime @default(now())
+//   users User[]
+// }
 
-  email        String @unique
-  username     String @unique
-  displayeName String
-  password     String
+// model User {
+//   id         Int      @id @default(autoincrement())
+//   updateTime DateTime @default(now())
+//   createTime DateTime @default(now())
 
-  client   Client    @relation(fields: [clientId], references: [id])
-  clientId Int
-  accounts Account[]
-}
+//   name         String @unique
+//   displayeName String
+//   password     String
+
+//   client   Client        @relation(fields: [clientId], references: [id])
+//   clientId Int
+//   accounts UserAccount[]
+// }
 
 model Account {
   id         Int      @id @default(autoincrement())
-  updateTime DateTime @default(now())
   createTime DateTime @default(now())
+  updateTime DateTime @updatedAt
 
   displayName String
+  description String? @db.Text
 
-  user         User          @relation(fields: [userId], references: [id])
-  userId       Int
   transactions Transaction[]
+  // users        UserAccount[]
 }
 
 model Transaction {
   id         Int      @id @default(autoincrement())
-  updateTime DateTime @default(now())
   createTime DateTime @default(now())
+  updateTime DateTime @updatedAt
 
   note          String?
+  detail        String?  @db.Text
   amount        Decimal
   executionTime DateTime @default(now())
   interval      Float    @default(0)
@@ -56,3 +59,17 @@ model Transaction {
   account   Account @relation(fields: [accountId], references: [id])
   accountId Int
 }
+
+// model UserAccount {
+//   createTime DateTime @default(now())
+//   updateTime DateTime @updatedAt
+
+//   user      User    @relation(fields: [userId], references: [id])
+//   userId    Int
+//   account   Account @relation(fields: [accountId], references: [id])
+//   accountId Int
+
+//   permission String
+
+//   @@id([userId, accountId])
+// }

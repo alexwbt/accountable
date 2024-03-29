@@ -6,15 +6,25 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "db-push": "prisma db push --schema prisma/accountable.prisma"
+    "start": "nodemon",
+    "build": "rm -rf ./build && tsc --build",
+    "db:push": "dotenv -e env/.env -- prisma db push --schema ./prisma/accountable.prisma"
   },
   "devDependencies": {
+    "@types/express": "^4.17.21",
     "@types/node": "^20.11.30",
+    "dotenv-cli": "^7.4.1",
     "prisma": "^5.11.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.3"
   },
   "dependencies": {
-    "@prisma/client": "^5.11.0"
+    "@prisma/client": "^5.11.0",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "joi": "^17.12.2",
+    "winston": "^3.13.0",
+    "winston-daily-rotate-file": "^5.0.0"
   }
 }
