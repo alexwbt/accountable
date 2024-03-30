@@ -3,12 +3,13 @@ import express from "express";
 import logger from "../lib/util/logger";
 import notfoundRouter from "./router/notfound";
 import { ENV } from "../lib/util/env";
+import accountCrudRouter from "./router/crud/account";
 
 const app = express();
 app.use(bodyParser.json());
 
 const rootRouter = express.Router();
-// rootRouter.use("/crawler", crawlerRouter);
+rootRouter.use("/account", accountCrudRouter);
 rootRouter.use(notfoundRouter);
 
 const startApp = (

@@ -13,8 +13,8 @@ datasource db {
 //   updateTime DateTime @default(now())
 //   createTime DateTime @default(now())
 
-//   name        String  @unique
-//   displayName String?
+//   name        String  @unique @db.VarChar(50)
+//   displayName String? @db.VarChar(50)
 
 //   users User[]
 // }
@@ -24,9 +24,9 @@ datasource db {
 //   updateTime DateTime @default(now())
 //   createTime DateTime @default(now())
 
-//   name         String @unique
-//   displayeName String
-//   password     String
+//   name         String @unique @db.VarChar(50)
+//   displayeName String @db.VarChar(50)
+//   password     String @db.VarChar(64)
 
 //   client   Client        @relation(fields: [clientId], references: [id])
 //   clientId Int
@@ -38,7 +38,7 @@ model Account {
   createTime DateTime @default(now())
   updateTime DateTime @updatedAt
 
-  displayName String
+  displayName String  @db.VarChar(50)
   description String? @db.Text
 
   transactions Transaction[]
@@ -50,7 +50,7 @@ model Transaction {
   createTime DateTime @default(now())
   updateTime DateTime @updatedAt
 
-  note          String?
+  note          String?  @db.VarChar(50)
   detail        String?  @db.Text
   amount        Decimal
   executionTime DateTime @default(now())

@@ -33,7 +33,7 @@ export type UseRequestHandlerConfig<
 
 export const useRequestHandler = <
   Query,
-  Params,
+  Params extends { [key: string]: string },
   ReqBody,
   ResBody,
 >({
@@ -71,21 +71,16 @@ export const useRequestHandler = <
         res.status(error.statusCode).send({
           message: error.responseMessage,
         });
-        logger.error(error.message);
-
       } else if (isValidationError(error)) {
         // handle validation error
         const messages = error.details.map(({ message }) => message);
-
         res.status(400).send({ messages });
-        logger.error("Validation error: " + messages);
-
       } else {
         // handle unknown error
         res.status(500).send({
           message: "An unknown error has occurred.",
         });
-        logger.error("unknown error: " + error);
+        logger.error("unknown error: ", error);
       }
     }
   }
