@@ -1,7 +1,20 @@
 import { RequestHandler, Router } from "express";
 import { AnySchema, isError as isValidationError } from "joi";
-import RequestHandlerError from "../error/RequestHandlerError";
 import logger from "../util/logger";
+
+export class RequestHandlerError implements Error {
+  public name: string
+  public message: string
+  public statusCode: number
+  public responseMessage: string
+
+  constructor(statusCode: number, message: string, responseMessage?: string) {
+    this.name = "RouterError"
+    this.message = message
+    this.statusCode = statusCode
+    this.responseMessage = responseMessage || message
+  }
+}
 
 export type RequestHandlerRequest<Query, Params, ReqBody> = {
   query: Query
@@ -22,8 +35,7 @@ export type UseRequestHandlerConfig<
 > = {
   router: Router
   path?: string
-  // noAuth?: boolean
-  method: 'all' | 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head'
+  method: "all" | "get" | "post" | "put" | "delete" | "patch" | "options" | "head"
   requestHandler: (req: RequestHandlerRequest<Query, Params, ReqBody>) =>
     Promise<RequestHandlerResponse<ResBody>> | RequestHandlerResponse<ResBody>
   querySchema?: AnySchema<Query>
@@ -85,9 +97,5 @@ export const useRequestHandler = <
     }
   }
 
-  // if (noAuth)
-  //   router[method](path || "", handler)
-  // else
-  //   router[method](path || "", passport, handler as any)
   router[method](path || "", handler);
 };

@@ -1,5 +1,5 @@
 import { PrismaClient } from "../../../prisma/generated/accountable";
-import RequestHandlerError from "../error/RequestHandlerError";
+import { RequestHandlerError } from "../router/useRequestHandler";
 
 export const createCrudService = (
   client: PrismaClient,
