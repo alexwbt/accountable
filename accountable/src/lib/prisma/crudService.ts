@@ -1,13 +1,9 @@
-import { Prisma, PrismaClient } from "../../../prisma/generated/accountable";
+import { PrismaClient } from "../../../prisma/generated/accountable";
 import RequestHandlerError from "../error/RequestHandlerError";
 
-export const createCrudService = <
-  Delegate extends Prisma.TypeMap,
-  CreateInput,
-  UpdateInput,
->(
+export const createCrudService = (
   client: PrismaClient,
-  delegate: Delegate,
+  delegate: any,
 ) => {
   return {
     select: async (id: string) => {
@@ -23,13 +19,13 @@ export const createCrudService = <
           take: size,
         }),
       ]);
-      return { total, items };
+      return { page, size, total, items };
     },
-    create: async (request: CreateInput) =>
-      await delegate.create({ data: request }).catch(() => {
+    create: async (request: any) =>
+      await delegate.create({ data: (request as any) }).catch(() => {
         throw new RequestHandlerError(400, "Invalid request.");
       }),
-    update: async (id: string, request: UpdateInput) =>
+    update: async (id: string, request: any) =>
       await delegate.update({ where: { id: +id }, data: request }).catch(() => {
         throw new RequestHandlerError(400, "Invalid request.");
       }),

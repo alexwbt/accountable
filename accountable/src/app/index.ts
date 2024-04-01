@@ -1,15 +1,17 @@
 import bodyParser from "body-parser";
 import express from "express";
-import logger from "../lib/util/logger";
-import notfoundRouter from "./router/notfound";
 import { ENV } from "../lib/util/env";
+import logger from "../lib/util/logger";
 import accountCrudRouter from "./router/crud/account";
+import transactionCrudRouter from "./router/crud/transaction";
+import notfoundRouter from "./router/notfound";
 
 const app = express();
 app.use(bodyParser.json());
 
 const rootRouter = express.Router();
 rootRouter.use("/account", accountCrudRouter);
+rootRouter.use("/transaction", transactionCrudRouter);
 rootRouter.use(notfoundRouter);
 
 const startApp = (
