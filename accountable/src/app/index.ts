@@ -1,13 +1,16 @@
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import express from "express";
-import { ENV } from "../lib/util/env";
+import { ENV, getEnvString } from "../lib/util/env";
 import logger from "../lib/util/logger";
+import { randomString } from "../lib/util/random";
 import accountCrudRouter from "./router/crud/account";
 import transactionCrudRouter from "./router/crud/transaction";
 import notfoundRouter from "./router/notfound";
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cookieParser(getEnvString("COOKIE_SECRET", randomString(128))));
 
 const rootRouter = express.Router();
 rootRouter.use("/account", accountCrudRouter);
