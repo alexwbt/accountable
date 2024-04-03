@@ -17,11 +17,11 @@ export class RequestHandlerError implements Error {
   }
 }
 
-export type RequestHandlerRequest<Query, Params, ReqBody, NoAuth> = {
+export type RequestHandlerRequest<Query, Params, ReqBody, Authorized> = {
   query: Query;
   params: Params;
   body: ReqBody;
-  token: NoAuth extends true ? undefined : Token;
+  token: Authorized extends true ? Token : undefined;
 };
 
 export type RequestHandlerResponse<ResBody> = {
@@ -34,13 +34,14 @@ export type UseRequestHandlerConfig<
   Params,
   ReqBody,
   ResBody,
-  NoAuth,
+  Authorized,
 > = {
   router: Router;
   path?: string;
-  noAuth?: NoAuth;
+  roles?: string[];
+  authorized?: Authorized;
   method: "all" | "get" | "post" | "put" | "delete" | "patch" | "options" | "head";
-  requestHandler: (req: RequestHandlerRequest<Query, Params, ReqBody, NoAuth>, res: Response) =>
+  requestHandler: (req: RequestHandlerRequest<Query, Params, ReqBody, Authorized>, res: Response) =>
     Promise<RequestHandlerResponse<ResBody>> | RequestHandlerResponse<ResBody>;
   querySchema?: AnySchema<Query>;
   paramsSchema?: AnySchema<Params>;
@@ -52,20 +53,26 @@ export const useRequestHandler = <
   Params extends { [key: string]: string },
   ReqBody,
   ResBody,
-  NoAuth extends boolean = false,
+  Authorized extends boolean = false,
 >({
   router,
   path,
-  noAuth,
+  roles,
+  authorized,
   method,
   requestHandler,
   querySchema, paramsSchema, bodySchema,
-}: UseRequestHandlerConfig<Query, Params, ReqBody, ResBody, NoAuth>
+}: UseRequestHandlerConfig<Query, Params, ReqBody, ResBody, Authorized>
 ) => {
   type _ResBody = ResBody | { message: string } | { messages: string[] };
   const handler: RequestHandler<Params, _ResBody, ReqBody, Query, Record<string, any>>
     = async (req, res) => {
       try {
+        const token = req.user as Token | undefined;
+        const tokenRoles = token?.getClaim<string[] | undefined>("roles", undefined);
+        if (roles && (!tokenRoles || roles.every(role => !tokenRoles.includes(role))))
+          throw new RequestHandlerError(401, `Missing required role ${roles.join("/")}.`, "Unauthorized.");
+
         // validation
         const option = { abortEarly: false };
         await Promise.all([
@@ -79,7 +86,7 @@ export const useRequestHandler = <
           query: req.query,
           params: req.params,
           body: req.body,
-          token: req.user as NoAuth extends true ? undefined : Token,
+          token: token as Authorized extends true ? Token : undefined,
         }, res);
 
         // send response
@@ -90,6 +97,7 @@ export const useRequestHandler = <
           res.status(error.statusCode).send({
             message: error.responseMessage,
           });
+          logger.debug("request handler error: ", error);
         } else if (isValidationError(error)) {
           // handle validation error
           const messages = error.details.map(({ message }) => message);
@@ -104,5 +112,5 @@ export const useRequestHandler = <
       }
     };
 
-  router[method](path || "", requireAuth(!noAuth), handler);
+  router[method](path || "", requireAuth(!!authorized), handler);
 };

@@ -46,18 +46,19 @@ const authorize = async (
 useRequestHandler({
   router: authRouter,
   path: "/login",
-  noAuth: true,
   method: "post",
   bodySchema: LoginRequestSchema,
   requestHandler: async ({ token, body: { username, password } }, res) => {
-    if (token) throw new RequestHandlerError(400, "Invalid request.");
+    if (token) throw new RequestHandlerError(400, "Called login with token.", "Invalid request.");
 
     const user = await client.user.findFirst({
       where: { name: username },
       select: { id: true, data: true, password: true },
     });
     if (!user || !await comparePassword(password, user.password))
-      throw new RequestHandlerError(400, "Invalid credentials.");
+      throw new RequestHandlerError(400,
+        user ? "Incorrect password." : "User not found.",
+        "Invalid credentials.");
 
     const session = await client.userSession.create({ data: { userId: user.id } });
 
@@ -74,15 +75,16 @@ useRequestHandler({
   router: authRouter,
   path: "/refresh",
   method: "post",
+  authorized: true,
   requestHandler: async ({ token }, res) => {
-    if (token.tokenType !== "session")
-      throw new RequestHandlerError(400, "Invalid request.");
+    if (token.getType() !== "session")
+      throw new RequestHandlerError(400, "Called refresh with access token.", "Invalid request.");
 
     const session = await client.userSession.findFirst({
-      where: { id: +token[SESSION_ID_CLAIM] },
+      where: { id: +token.getClaimRequired<string>(SESSION_ID_CLAIM) },
       select: { id: true, user: true },
     });
-    if (!session) throw new RequestHandlerError(401, "Unauthorized.");
+    if (!session) throw new RequestHandlerError(401, "Failed to find session to refresh.", "Unauthorized.");
 
     return {
       status: 200,
@@ -97,9 +99,10 @@ useRequestHandler({
   router: authRouter,
   path: "/logout",
   method: "post",
+  authorized: true,
   requestHandler: async ({ token }, res) => {
     await client.userSession.delete({
-      where: { id: +token[SESSION_ID_CLAIM] },
+      where: { id: +token.getClaimRequired<string>(SESSION_ID_CLAIM) },
       select: {},
     });
 

@@ -4,10 +4,27 @@ import { Authenticator } from "passport";
 import passportJWT from "passport-jwt";
 import { randomString } from "./util/random";
 
-export type Token = {
-  [claim: string]: any;
-  tokenType: "access" | "session";
-};
+export type TokenType = "access" | "session";
+export class Token {
+  constructor(
+    private type: TokenType,
+    private payload: { [claim: string]: any },
+  ) { }
+
+  getType() { return this.type; }
+
+  getClaim<T>(name: string, defaultValue: T) {
+    if (typeof this.payload[name] === undefined)
+      return defaultValue;
+    return this.payload[name] as T;
+  }
+
+  getClaimRequired<T>(name: string) {
+    if (typeof this.payload[name] === undefined)
+      throw new Error(`Missing required token claim ${name}.`);
+    return this.payload[name] as T;
+  }
+}
 
 export const signToken = (payload: any, secret: string, options?: SignOptions): Promise<string> => {
   return new Promise((resolve, reject) => jwt.sign(
@@ -47,7 +64,7 @@ export const useAuthenticator = (
     secretOrKey: accessTokenSecret,
     jwtFromRequest: passportJWT.ExtractJwt.fromAuthHeaderAsBearerToken()
   }, async (payload: { id: Number }, done) => {
-    done(null, { tokenType: "access", ...payload });
+    done(null, new Token("access", payload));
   }));
 
   // Extract session token from request cookies
@@ -55,15 +72,15 @@ export const useAuthenticator = (
     secretOrKey: sessionTokenSecret,
     jwtFromRequest: req => req && req.signedCookies && req.signedCookies["session_token"]
   }, async (payload: { id: Number }, done) => {
-    done(null, { tokenType: "session", ...payload });
+    done(null, new Token("session", payload));
   }));
 
   return (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate(
       ["jwt-header", "jwt-cookie"],
       { session: false },
-      (_err: any, user: any, _info: any) => {
-        req.user = user;
+      (_err: any, token: any, _info: any) => {
+        req.user = token;
         next();
       },
     )(req, res, next);

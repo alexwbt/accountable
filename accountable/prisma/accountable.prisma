@@ -8,17 +8,6 @@ datasource db {
   url      = env("ACCOUNTABLE_DATABASE_URL")
 }
 
-model Client {
-  id         Int      @id @default(autoincrement())
-  updateTime DateTime @default(now())
-  createTime DateTime @default(now())
-
-  name        String  @unique @db.VarChar(50)
-  displayName String? @db.VarChar(50)
-
-  users User[]
-}
-
 model User {
   id         Int      @id @default(autoincrement())
   updateTime DateTime @default(now())
@@ -28,8 +17,6 @@ model User {
   password String @db.VarChar(60)
   data     Json
 
-  client      Client        @relation(fields: [clientId], references: [id])
-  clientId    Int
   accounts    UserAccount[]
   UserSession UserSession[]
 }
