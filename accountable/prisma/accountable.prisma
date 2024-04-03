@@ -67,6 +67,8 @@ model UserSession {
   createTime DateTime @default(now())
   updateTime DateTime @updatedAt
 
+  refreshCount Int @default(0)
+
   user   User @relation(fields: [userId], references: [id])
   userId Int
 }

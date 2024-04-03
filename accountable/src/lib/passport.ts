@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { SignOptions, VerifyOptions } from "jsonwebtoken";
-import { Authenticator } from "passport";
+import { Authenticator, Passport } from "passport";
 import passportJWT from "passport-jwt";
-import { randomString } from "./util/random";
 
 export type TokenType = "access" | "session";
 export class Token {
@@ -54,11 +53,13 @@ export const requireAuth = (require: boolean) =>
       next();
   };
 
+export const SESSION_TOKEN_COOKIE_NAME = "session_token";
 export const useAuthenticator = (
-  passport: Authenticator,
-  accessTokenSecret = randomString(128),
-  sessionTokenSecret = randomString(128),
+  accessTokenSecret: string,
+  sessionTokenSecret: string,
 ) => {
+  const passport = new Passport();
+
   // Extract access token from request header "Authorization" as Bearer token
   passport.use("jwt-header", new passportJWT.Strategy({
     secretOrKey: accessTokenSecret,
@@ -70,7 +71,7 @@ export const useAuthenticator = (
   // Extract session token from request cookies
   passport.use("jwt-cookie", new passportJWT.Strategy({
     secretOrKey: sessionTokenSecret,
-    jwtFromRequest: req => req && req.signedCookies && req.signedCookies["session_token"]
+    jwtFromRequest: req => req && req.signedCookies && req.signedCookies[SESSION_TOKEN_COOKIE_NAME]
   }, async (payload: { id: Number }, done) => {
     done(null, new Token("session", payload));
   }));

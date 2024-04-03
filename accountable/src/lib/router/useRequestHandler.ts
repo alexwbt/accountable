@@ -1,4 +1,4 @@
-import { RequestHandler, Response, Router } from "express";
+import { RequestHandler, Request, Response, Router } from "express";
 import { AnySchema, isError as isValidationError } from "joi";
 import { Token, requireAuth } from "../passport";
 import logger from "../util/logger";
@@ -22,6 +22,7 @@ export type RequestHandlerRequest<Query, Params, ReqBody, Authorized> = {
   params: Params;
   body: ReqBody;
   token: Authorized extends true ? Token : undefined;
+  _req: Request;
 };
 
 export type RequestHandlerResponse<ResBody> = {
@@ -68,7 +69,7 @@ export const useRequestHandler = <
   const handler: RequestHandler<Params, _ResBody, ReqBody, Query, Record<string, any>>
     = async (req, res) => {
       try {
-        const token = req.user as Token | undefined;
+        const token = (authorized ? req.user : undefined) as Token | undefined;
         const tokenRoles = token?.getClaim<string[] | undefined>("roles", undefined);
         if (roles && (!tokenRoles || roles.every(role => !tokenRoles.includes(role))))
           throw new RequestHandlerError(401, `Missing required role ${roles.join("/")}.`, "Unauthorized.");
@@ -87,6 +88,7 @@ export const useRequestHandler = <
           params: req.params,
           body: req.body,
           token: token as Authorized extends true ? Token : undefined,
+          _req: req,
         }, res);
 
         // send response
@@ -97,7 +99,7 @@ export const useRequestHandler = <
           res.status(error.statusCode).send({
             message: error.responseMessage,
           });
-          logger.debug("request handler error: ", error);
+          logger.debug("request handler error:", error);
         } else if (isValidationError(error)) {
           // handle validation error
           const messages = error.details.map(({ message }) => message);
@@ -107,7 +109,7 @@ export const useRequestHandler = <
           res.status(500).send({
             message: "An unknown error has occurred.",
           });
-          logger.error("unknown error: ", error);
+          logger.error("unknown error:", error);
         }
       }
     };
