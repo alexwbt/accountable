@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { ROLE_ADMIN, ROLE_USER } from "../constants";
 
 export type UserCreateRequest = {
   name: string;
@@ -16,4 +17,5 @@ export type UserUpdateRequest = {
 };
 export const UserUpdateRequestSchema = Joi.object<UserUpdateRequest>({
   password: Joi.string().max(50),
+  roles: Joi.array().items(Joi.string().valid(ROLE_ADMIN, ROLE_USER)),
 });

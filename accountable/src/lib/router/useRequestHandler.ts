@@ -15,6 +15,8 @@ export class RequestHandlerError implements Error {
     this.statusCode = statusCode;
     this.responseMessage = responseMessage || message;
   }
+
+  toString() { return this.message; }
 }
 
 export type RequestHandlerRequest<Query, Params, ReqBody, Authorized> = {

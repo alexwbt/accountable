@@ -1,5 +1,6 @@
 import Joi from "joi";
 import { Prisma } from "../../../prisma/generated/accountable";
+import { BaseSearchQuery } from "../../lib/router/useCrudRouter";
 
 export const TransactionCreateRequestSchema = Joi.object<Prisma.TransactionUncheckedCreateInput>({
   note: Joi.string().max(50),
@@ -16,4 +17,8 @@ export const TransactionUpdateRequestSchema = Joi.object<Prisma.TransactionUpdat
   amount: Joi.number(),
   executionTime: Joi.string().isoDate(),
   interval: Joi.number(),
+});
+
+export const TransactionSearchQuerySchema = Joi.object<BaseSearchQuery & { accountId: string | undefined; }>({
+  accountId: Joi.number().min(1),
 });

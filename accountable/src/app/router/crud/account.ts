@@ -1,6 +1,6 @@
 import { AccountCreateRequestSchema, AccountUpdateRequestSchema } from "../../../app/schema/account";
 import { Token } from "../../../lib/passport";
-import { createCrudRouter } from "../../../lib/router/useCrudRouter";
+import { BaseSearchQuerySchema, createCrudRouter } from "../../../lib/router/useCrudRouter";
 import client from "../../client";
 import { PERMISSION_DELIMITER, PERMISSION_EDIT, PERMISSION_READ, ROLE_USER } from "../../constants";
 import { NumberIdSchema } from "../../schema/id";
@@ -9,7 +9,11 @@ const commonWhereClause = (token: Token) => ({
   users: {
     some: {
       user: {
-        id: +token.getClaimRequired<string>("subject"),
+        is: {
+          id: {
+            equals: +token.getClaimRequired<string>("sub"),
+          },
+        },
       },
     },
   },
@@ -17,6 +21,7 @@ const commonWhereClause = (token: Token) => ({
 
 const accountCrudRouter = createCrudRouter(
   NumberIdSchema,
+  BaseSearchQuerySchema,
   AccountCreateRequestSchema,
   AccountUpdateRequestSchema,
   {
@@ -26,7 +31,7 @@ const accountCrudRouter = createCrudRouter(
         ...commonWhereClause(token),
       },
     }),
-    search: async (page, size, token) => {
+    search: async ({ page, size }, token) => {
       const result = await client.$transaction([
         client.account.count({ where: commonWhereClause(token), }),
         client.account.findMany({ where: commonWhereClause(token), skip: page * size, take: size, }),
@@ -37,7 +42,7 @@ const accountCrudRouter = createCrudRouter(
       const account = await client.account.create({ data });
       await client.userAccount.create({
         data: {
-          userId: +token.getClaimRequired<string>("subject"),
+          userId: +token.getClaimRequired<string>("sub"),
           accountId: account.id,
           permission: [PERMISSION_EDIT, PERMISSION_READ].join(PERMISSION_DELIMITER),
         },

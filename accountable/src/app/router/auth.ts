@@ -25,10 +25,29 @@ const authorize = async (
     Array.isArray((user.data as any)?.roles) ? (user.data as any).roles : [];
 
   const [accessToken, sessionToken] = await Promise.all([
-    signToken({ [SESSION_ID_CLAIM]: `${session.id}-${session.refreshCount}`, roles }, ACCESS_TOKEN_SECRET,
-      { subject: `${user.id}`, expiresIn: "10m" }),
-    signToken({ [SESSION_ID_CLAIM]: `${session.id}-${session.refreshCount}` }, SESSION_TOKEN_SECRET,
-      { subject: `${user.id}`, expiresIn: "30d" }),
+    // sign access token
+    signToken(
+      {
+        [SESSION_ID_CLAIM]: `${session.id}-${session.refreshCount}`,
+        roles
+      },
+      ACCESS_TOKEN_SECRET,
+      {
+        subject: `${user.id}`,
+        expiresIn: "10m",
+      }
+    ),
+    // sign session token
+    signToken(
+      {
+        [SESSION_ID_CLAIM]: `${session.id}-${session.refreshCount}`,
+      },
+      SESSION_TOKEN_SECRET,
+      {
+        subject: `${user.id}`,
+        expiresIn: "30d",
+      }
+    ),
   ]);
 
   res.cookie(SESSION_TOKEN_COOKIE_NAME, sessionToken, {
