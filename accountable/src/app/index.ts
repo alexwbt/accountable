@@ -1,6 +1,8 @@
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import express from "express";
+import { useAuthenticator } from "../lib/passport";
 import { ENV, getEnvString } from "../lib/util/env";
 import logger from "../lib/util/logger";
 import { randomString } from "../lib/util/random";
@@ -9,12 +11,12 @@ import accountCrudRouter from "./router/crud/account";
 import transactionCrudRouter from "./router/crud/transaction";
 import userCrudRouter from "./router/crud/user";
 import notfoundRouter from "./router/notfound";
-import { useAuthenticator } from "../lib/passport";
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cookieParser(getEnvString("COOKIE_SECRET", randomString(128))));
 app.use(useAuthenticator(ACCESS_TOKEN_SECRET, SESSION_TOKEN_SECRET));
+app.use(cors({ origin: getEnvString("CLIENT_ORIGIN", "*"), credentials: true, }));
 
 const rootRouter = express.Router();
 rootRouter.use("/auth", authRouter);

@@ -57,6 +57,7 @@ const authorize = async (
     maxAge: 2592000000, // 30 days
     domain: getEnvString("COOKIE_DOMAIN", ""),
     secure: getEnvBoolean("COOKIE_HTTPS_ONLY", true),
+    path: getEnvString("CONTEXT_PATH", "/"),
   });
 
   return accessToken;

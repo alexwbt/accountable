@@ -27,7 +27,7 @@ const Spinner: React.FC<CommonProps<{ inline?: boolean; }>> = ({ className, inli
   const spinner = (
     <SpinnerContainer className={className}>
       <div className="spinner">
-        <CircularProgress />
+      <CircularProgress />
       </div>
     </SpinnerContainer>
   );
