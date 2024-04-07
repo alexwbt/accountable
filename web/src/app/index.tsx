@@ -8,7 +8,7 @@ import { StrictMode, useState } from "react";
 import { Provider as StoreProvider } from "react-redux";
 import { RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import useKeyListener from "../lib/hooks/event/useKeyListener";
 import router from "./router";
 import store from "./store";
@@ -21,7 +21,7 @@ const AppContainer = styled.div`
 
 const App = () => {
   const [theme, setTheme] = useState(darkTheme);
-  useKeyListener(["\\"], ["altKey"], () => {
+  useKeyListener(["\\"], ["ctrlKey"], () => {
     setTheme(t => t === darkTheme ? lightTheme : darkTheme);
   });
 

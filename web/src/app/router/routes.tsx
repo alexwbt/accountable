@@ -1,9 +1,8 @@
 import { Navigate, Outlet } from "react-router-dom";
 import Spinner from "../../lib/components/Spinner";
 import useInit from "../../lib/hooks/useInit";
-import { refresh } from "../api/auth";
-import { useDispatch, useSelector } from "../store";
-import { setAccessToken } from "../store/user";
+import useAuth from "../hooks/api/useAuth";
+import { useSelector } from "../store";
 
 export const ProtectedRoute: React.FC = () => {
   const accessToken = useSelector(s => s.user.accessToken);
@@ -19,15 +18,8 @@ export const LoginRoute: React.FC = () => {
     : <Outlet />;
 };
 
-export const AppWrapper: React.FC = () => {
-  const accessToken = useSelector(s => s.user.accessToken);
-  const dispatch = useDispatch();
-
-  const loading = useInit(async () => {
-    if (accessToken) return;
-    const token = await refresh().catch(() => "");
-    dispatch(setAccessToken(token));
-  });
-
-  return loading ? <Spinner /> : <Outlet />
+export const AccessRefreshRoute: React.FC = () => {
+  const { refresh } = useAuth();
+  const loading = useInit(refresh);
+  return loading ? <Spinner /> : <Outlet />;
 };

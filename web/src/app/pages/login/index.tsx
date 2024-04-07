@@ -1,13 +1,10 @@
 import styled from "@emotion/styled";
 import { Button, Paper, TextField, Typography } from "@mui/material";
 import { useState } from "react";
-import { toast } from "react-toastify";
 import CenterCardLayout from "../../../lib/components/layouts/CenterCardLayout";
 import useKeyListener from "../../../lib/hooks/event/useKeyListener";
 import useLoadable from "../../../lib/hooks/useLoadable";
-import { login } from "../../api/auth";
-import { useDispatch } from "../../store";
-import { setAccessToken } from "../../store/user";
+import useAuth from "../../hooks/api/useAuth";
 
 const LoginPageContainer = styled.div`
   .login-paper {
@@ -22,18 +19,13 @@ const LoginPageContainer = styled.div`
 `;
 
 const LoginPage = () => {
-  const dispatch = useDispatch();
+  const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const [loading, enter] = useLoadable(async () => {
     if (!username || !password) return;
-    const accessToken = await login(username, password)
-      .catch(() => {
-        toast.error("Login failed.");
-        return "";
-      });
-    dispatch(setAccessToken(accessToken));
+    await login(username, password);
   });
 
   useKeyListener(["Enter"], [], enter);

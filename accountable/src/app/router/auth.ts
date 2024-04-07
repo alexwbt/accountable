@@ -14,6 +14,16 @@ export const ACCESS_TOKEN_SECRET = getEnvString("ACCESS_TOKEN_SECRET", randomStr
 export const SESSION_TOKEN_SECRET = getEnvString("SESSION_TOKEN_SECRET", randomString(128));
 const SESSION_ID_CLAIM = "session";
 
+const SESSION_TOKEN_COOKIE_SETTINGS = {
+  signed: true,
+  httpOnly: true,
+  sameSite: "strict",
+  maxAge: 2592000000, // 30 days
+  domain: getEnvString("COOKIE_DOMAIN", ""),
+  secure: getEnvBoolean("COOKIE_HTTPS_ONLY", true),
+  path: getEnvString("CONTEXT_PATH", "/"),
+} as const;
+
 const authRouter = express.Router();
 
 const authorize = async (
@@ -50,15 +60,8 @@ const authorize = async (
     ),
   ]);
 
-  res.cookie(SESSION_TOKEN_COOKIE_NAME, sessionToken, {
-    signed: true,
-    httpOnly: true,
-    sameSite: "strict",
-    maxAge: 2592000000, // 30 days
-    domain: getEnvString("COOKIE_DOMAIN", ""),
-    secure: getEnvBoolean("COOKIE_HTTPS_ONLY", true),
-    path: getEnvString("CONTEXT_PATH", "/"),
-  });
+  res.cookie(SESSION_TOKEN_COOKIE_NAME,
+    sessionToken, SESSION_TOKEN_COOKIE_SETTINGS);
 
   return accessToken;
 };
@@ -133,7 +136,10 @@ useRequestHandler({
       where: { id: +sessionId },
     });
 
-    res.clearCookie(SESSION_TOKEN_COOKIE_NAME);
+    res.clearCookie(SESSION_TOKEN_COOKIE_NAME, {
+      ...SESSION_TOKEN_COOKIE_SETTINGS,
+      maxAge: 0,
+    });
 
     return { status: 200 };
   },

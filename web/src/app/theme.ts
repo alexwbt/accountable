@@ -4,7 +4,8 @@ export const darkTheme = createTheme({
   palette: {
     mode: "dark",
     background: {
-      default: "#111",
+      default: "#121212",
+      paper: "#222",
     },
   },
 });

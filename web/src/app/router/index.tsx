@@ -1,12 +1,13 @@
 import { createBrowserRouter } from "react-router-dom";
 import ErrorPage from "../../lib/components/ErrorPage";
+import { SidebarRoute } from "../components/sidebar";
 import RootPage from "../pages";
 import LoginPage from "../pages/login";
-import { AppWrapper, LoginRoute, ProtectedRoute } from "./auth";
+import { AccessRefreshRoute, LoginRoute, ProtectedRoute } from "./routes";
 
 const router = createBrowserRouter([
   {
-    element: <AppWrapper />,
+    element: <AccessRefreshRoute />,
     children: [
       {
         path: "/login",
@@ -22,8 +23,13 @@ const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
           {
-            path: "/",
-            element: <RootPage />,
+            element: <SidebarRoute />,
+            children: [
+              {
+                path: "/",
+                element: <RootPage />,
+              },
+            ],
           },
           {
             path: "*",
