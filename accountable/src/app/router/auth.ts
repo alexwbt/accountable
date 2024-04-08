@@ -27,7 +27,7 @@ const SESSION_TOKEN_COOKIE_SETTINGS = {
 const authRouter = express.Router();
 
 const authorize = async (
-  user: Pick<User, "id" | "data">,
+  user: Pick<User, "id" | "data" | "name">,
   session: Pick<UserSession, "id" | "refreshCount">,
   res: express.Response,
 ) => {
@@ -38,8 +38,9 @@ const authorize = async (
     // sign access token
     signToken(
       {
+        roles,
+        username: user.name,
         [SESSION_ID_CLAIM]: `${session.id}-${session.refreshCount}`,
-        roles
       },
       ACCESS_TOKEN_SECRET,
       {
@@ -78,7 +79,7 @@ useRequestHandler({
 
     const user = await client.user.findFirst({
       where: { name: username },
-      select: { id: true, data: true, password: true },
+      select: { id: true, data: true, name: true, password: true },
     });
     if (!user || !await comparePassword(password, user.password))
       throw new RequestHandlerError(400,

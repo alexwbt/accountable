@@ -10,9 +10,10 @@ import { RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useKeyListener from "../lib/hooks/event/useKeyListener";
+import { appStorage } from "./localStorage";
 import router from "./router";
 import store from "./store";
-import { darkTheme, lightTheme } from "./theme";
+import * as themes from "./theme";
 
 const AppContainer = styled.div`
   width: 100vw;
@@ -20,15 +21,19 @@ const AppContainer = styled.div`
 `;
 
 const App = () => {
-  const [theme, setTheme] = useState(darkTheme);
-  useKeyListener(["\\"], ["ctrlKey"], () => {
-    setTheme(t => t === darkTheme ? lightTheme : darkTheme);
+  const [theme, setTheme_] = useState(appStorage.getItem("theme"));
+  const setTheme = (t: typeof theme) => {
+    setTheme_(t);
+    appStorage.setItem("theme", t);
+  };
+  useKeyListener(["/"], ["ctrlKey"], () => {
+    setTheme(theme === "dark" ? "light" : "dark");
   });
 
   return (
     <StrictMode>
       <StoreProvider store={store}>
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[`${theme}Theme`]}>
           <CssBaseline />
           <AppContainer>
             <ToastContainer

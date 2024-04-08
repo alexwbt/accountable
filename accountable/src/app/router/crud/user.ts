@@ -59,7 +59,7 @@ const userCrudRouter = createCrudRouter(
     },
   },
   true,
-  [ROLE_USER],
+  [ROLE_ADMIN],
   [ROLE_ADMIN],
 );
 
