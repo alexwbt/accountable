@@ -5,10 +5,12 @@ import {
   useSelector as reduxUseSelector
 } from "react-redux";
 import user from "./user";
+import settings from "./settings";
 
 const store = configureStore({
   reducer: {
     user,
+    settings,
   },
 });
 
