@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { Prisma } from "../../../prisma/generated/accountable";
+import { Prisma } from "@prisma/client";
 import { BaseSearchQuery } from "../../lib/router/useCrudRouter";
 
 export const TransactionCreateRequestSchema = Joi.object<Prisma.TransactionUncheckedCreateInput>({

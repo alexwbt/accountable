@@ -1,4 +1,4 @@
-import { PrismaClient } from "../prisma/generated/accountable";
+import { PrismaClient } from "@prisma/client";
 import { ROLE_ADMIN, ROLE_USER } from "./app/constants";
 import { hashPassword } from "./lib/util/hash";
 

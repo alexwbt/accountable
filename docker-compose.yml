@@ -1,0 +1,18 @@
+
+services:
+
+  accountable:
+    build:
+      context: ./accountable
+      dockerfile: ../_docker/accountable.Dockerfile
+    image: alexwbt/accountable
+    container_name: accountable
+  
+  accountable-web:
+    build:
+      context: ./web
+      dockerfile: ../_docker/web.Dockerfile
+    image: alexwbt/accountable-web
+    container_name: accountable-web
+    ports:
+      - 3000:3000

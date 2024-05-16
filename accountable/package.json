@@ -8,8 +8,8 @@
   "scripts": {
     "start": "nodemon",
     "build": "rm -rf ./build && tsc --build",
-    "db:push": "dotenv -e env/.env -- prisma db push --schema ./prisma/accountable.prisma",
-    "db:gen": "dotenv -e env/.env -- prisma generate --schema ./prisma/accountable.prisma",
+    "db:push": "dotenv -e env/.env -- prisma db push",
+    "db:gen": "dotenv -e env/.env -- prisma generate",
     "seed": "dotenv -e env/.env -- ts-node src/seed.ts"
   },
   "devDependencies": {

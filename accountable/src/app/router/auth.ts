@@ -1,7 +1,7 @@
+import { User, UserSession } from "@prisma/client";
 import express from "express";
 import { scheduleJob } from "node-schedule";
-import { User, UserSession } from "../../../prisma/generated/accountable";
-import { SESSION_TOKEN_COOKIE_NAME, signToken, Token } from "../../lib/passport";
+import { SESSION_TOKEN_COOKIE_NAME, Token, signToken } from "../../lib/passport";
 import { RequestHandlerError, useRequestHandler } from "../../lib/router/useRequestHandler";
 import { getEnvBoolean, getEnvString } from "../../lib/util/env";
 import { comparePassword } from "../../lib/util/hash";

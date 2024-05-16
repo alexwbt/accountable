@@ -1,4 +1,4 @@
-import { Prisma } from "../../../prisma/generated/accountable";
+import { Prisma } from "@prisma/client";
 import Joi from "joi";
 
 export const AccountCreateRequestSchema = Joi.object<Prisma.AccountCreateInput>({

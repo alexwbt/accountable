@@ -7,7 +7,7 @@ const CONTEXT_PATH = getEnvString("CONTEXT_PATH", "/");
 
 startApp(PORT, CONTEXT_PATH);
 
-process.on('SIGINT', async () => {
+process.on("SIGINT", async () => {
   await schedule.gracefulShutdown();
   process.exit(0);
 });
